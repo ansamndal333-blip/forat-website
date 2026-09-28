@@ -1102,39 +1102,10 @@
     }
 
     function renderVisitorMessages() {
-      const container = document.getElementById("visitorMessages");
-      if (!container) return;
+    const container = document.getElementById("visitorMessages");
+    if (!container) return;
 
-      container.replaceChildren();
-      const messages = safeJsonGet("furatMessages", []);
-
-      if (!messages.length) {
-        container.appendChild(
-          makeTextElement("p", "لسه ما في رسائل. كوني أول شخص يترك كلمة طيبة 🌷", "text-center text-gray-500 py-6")
-        );
-        return;
-      }
-
-      messages.forEach((item) => {
-        const card = document.createElement("div");
-        card.className = "glass-card p-4 mb-3";
-
-        const row = document.createElement("div");
-        row.className = "flex items-center justify-between gap-3 mb-2";
-
-        row.appendChild(
-          makeTextElement("strong", normalizeText(item.name, 50), "text-purple-700 dark:text-purple-300")
-        );
-        row.appendChild(
-          makeTextElement("span", normalizeText(item.date, 30), "text-xs text-gray-400")
-        );
-
-        card.appendChild(row);
-        card.appendChild(
-          makeTextElement("p", normalizeText(item.text, 300), "text-gray-700 dark:text-gray-200 leading-7")
-        );
-        container.appendChild(card);
-      });
+    container.replaceChildren();
     }
 
     async function submitVisitorWish() {
