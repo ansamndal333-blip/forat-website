@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="فرات… حكاية أمل — مساحة لطيفة للدعاء والكلمات الطيبة والأمنيات.">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <title>فرات… حكاية أمل 🌷</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+
+      const privacyModal = document.getElementById("privacyModal");
+      const mobileMenu = document.getElementById("mobileMenu");
+
+      if (privacyModal && !privacyModal.classList.contains("hidden")) closePrivacyModal();
+      if (mobileMenu) mobileMenu.classList.add("hidden");
+    });
+
+
+    let hopeSpeech = null;
+
+    function getArabicVoice() {
+      if (!("speechSynthesis" in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      return voices.find(v => v.lang && v.lang.toLowerCase().startsWith("ar")) || null;
+    }
+
+    function playHopeVoice() {
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+        showToast("متصفحك لا يدعم تشغيل الصوت التلقائي");
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      const text = "يا رب احفظ فرات وامنحها القوة والراحة والطمأنينة. اللهم اجعل القادم أجمل، واملأ قلبها بالأمل، واكتب لها الخير والشفاء والعافية.";
+      hopeSpeech = new SpeechSynthesisUtterance(text);
+      hopeSpeech.lang = "ar-JO";
+      hopeSpeech.rate = Number(document.getElementById("voiceRate")?.value || 1);
+      hopeSpeech.pitch = 1;
+
+      const arabicVoice = getArabicVoice();
+      if (arabicVoice) hopeSpeech.voice = arabicVoice;
+
+      const status = document.getElementById("voiceStatus");
+      if (status) status.textContent = "🔊 يتم تشغيل صوت الأمل الآن...";
+
+      hopeSpeech.onend = () => {
+        if (status) status.textContent = "🌷 انتهى الصوت";
+      };
+
+      window.speechSynthesis.speak(hopeSpeech);
+    }
+
+    function pauseHopeVoice() {
+      if (!("speechSynthesis" in window)) return;
+
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+        const status = document.getElementById("voiceStatus");
+        if (status) status.textContent = "⏸️ تم إيقاف الصوت مؤقتًا";
+      }
+    }
+
+    // بعض المتصفحات تحمل الأصوات بعد فتح الصفحة.
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = () => getArabicVoice();
+    }
+
+
+    function getBestArabicVoice() {
+      if (!("speechSynthesis" in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      return voices.find(v => /^ar(-|_)/i.test(v.lang || "")) ||
+             voices.find(v => (v.lang || "").toLowerCase().startsWith("ar")) ||
+             null;
+    }
+
+    function speakArabicText(rawText) {
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+        showToast("هذا المتصفح لا يدعم القراءة الصوتية 🤍");
+        return;
+      }
+
+      const text = String(rawText || "")
+        .replace(/[«»]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!text) return;
+
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "ar";
+      utterance.rate = 0.85;
+      utterance.pitch = 1;
+
+      const voice = getBestArabicVoice();
+      if (voice) utterance.voice = voice;
+
+      utterance.onstart = () => {
+        document.querySelectorAll(".readable-dua.is-speaking").forEach(el => {
+          el.classList.remove("is-speaking");
+        });
+
+        const activeDua = [...document.querySelectorAll(".readable-dua")]
+          .find(el => el.textContent.replace(/[«»]/g, "").replace(/\s+/g, " ").trim() === text);
+
+        if (activeDua) activeDua.classList.add("is-speaking");
+      };
+
+      utterance.onend = () => {
+        document.querySelectorAll(".readable-dua.is-speaking").forEach(el => {
+          el.classList.remove("is-speaking");
+        });
+      };
+
+      utterance.onerror = () => {
+        document.querySelectorAll(".readable-dua.is-speaking").forEach(el => {
+          el.classList.remove("is-speaking");
+        });
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function stopArabicVoice() {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        document.querySelectorAll(".readable-dua.is-speaking").forEach(el => {
+          el.classList.remove("is-speaking");
+        });
+        showToast("تم إيقاف القراءة ⏹️");
+      }
+    }
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = () => getBestArabicVoice();
+    }
+
+    </script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        roseSoft: '#fdf4f7',
+                        purpleSoft: '#faf5ff',
+                        goldAccent: '#d97706',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+    button, a, input, textarea { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(124, 58, 237, .45);
+      outline-offset: 3px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    body {
+            font-family: 'Cairo', sans-serif;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(244, 114, 182, 0.2);
+        }
+        .dark .glass-card {
+            background: rgba(30, 27, 38, 0.88);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+        .floating { animation: floatSlow 5s ease-in-out infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.85; }
+        }
+        .pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fdf2f8; }
+        .dark ::-webkit-scrollbar-track { background: #18151f; }
+        ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 4px; }
+        .page-section { display: none; }
+        .page-section.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    
+    .animate-fadeIn { animation: fadeIn .45s ease both; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  
+    .added-word-card { transition: transform .25s ease, box-shadow .25s ease; }
+    .added-word-card:hover { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(236, 72, 153, .12); }
+  
+        .readable-dua {
+            font-size: 1.14rem;
+            line-height: 2.0;
+            font-weight: 700;
+        }
+        .quran-preview {
+            color: #334155;
+            font-family: "Amiri", "Traditional Arabic", serif;
+            font-size: 1.36rem;
+            line-height: 2.35;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            text-align: center;
+            direction: rtl;
+        }
+        .dark .quran-preview { color: #e2e8f0; }
+</style>
+
+    <style>
+      .quran-accordion {
+        transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+      }
+      .quran-accordion:hover {
+        transform: translateY(-2px);
+      }
+      .quran-summary::-webkit-details-marker {
+        display: none;
+      }
+      .quran-summary {
+        user-select: none;
+      }
+      .quran-summary:focus-visible {
+        outline: 3px solid rgba(236,72,153,.35);
+        outline-offset: -3px;
+      }
+      .quran-plus {
+        width: 38px;
+        height: 38px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(236,72,153,.10);
+        color: #db2777;
+        font-size: 25px;
+        line-height: 1;
+        transition: transform .25s ease, background .25s ease;
+      }
+      details[open] .quran-plus {
+        transform: rotate(45deg);
+        background: rgba(124,58,237,.12);
+        color: #7c3aed;
+      }
+      .quran-hidden-content {
+        animation: quranOpen .28s ease-out;
+      }
+      @keyframes quranOpen {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      /* بطاقات القرآن: عمودان دائمًا على الجوال والكمبيوتر */
+      .quran-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .quran-summary {
+        min-height: 150px;
+      }
+      .quran-dua {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 18px;
+        background: rgba(255,255,255,.62);
+        border: 1px dashed rgba(168,85,247,.20);
+        color: #6b21a8;
+        font-family: "Amiri", "Noto Naskh Arabic", serif;
+        font-weight: 700;
+        line-height: 1.9;
+        font-size: 1rem;
+      }
+      .dark .quran-dua {
+        background: rgba(30,41,59,.55);
+        color: #e9d5ff;
+        border-color: rgba(168,85,247,.35);
+      }
+      @media (max-width: 640px) {
+        .quran-grid { gap: 10px; }
+        .quran-summary { min-height: 142px; padding: 14px !important; }
+        .quran-summary h5 { font-size: .98rem; line-height: 1.55; }
+        .quran-summary p { font-size: .72rem; line-height: 1.5; }
+        .quran-summary .quran-plus { width: 30px; height: 30px; font-size: 20px; }
+        .quran-hidden-content { padding-left: 12px !important; padding-right: 12px !important; padding-bottom: 12px !important; }
+        .quran-text { font-size: 1.02rem !important; line-height: 2.15 !important; padding: 13px 12px !important; }
+        .quran-dua { font-size: .88rem; line-height: 1.8; padding: 10px 9px; }
+      }
+
+      .quran-text {
+        background: rgba(251, 207, 232, .18);
+        border: 1px solid rgba(236,72,153,.15);
+        border-radius: 22px;
+        padding: 20px 22px;
+        color: #334155;
+        font-family: "Amiri", "Noto Naskh Arabic", serif;
+        font-size: 1.28rem;
+        font-weight: 700;
+        line-height: 2.35;
+        text-align: center;
+      }
+      .dark .quran-text {
+        background: rgba(88,28,135,.14);
+        border-color: rgba(167,139,250,.18);
+        color: #f8fafc;
+      }
+      @media (max-width: 640px) {
+        .quran-text {
+          font-size: 1.12rem;
+          line-height: 2.2;
+          padding: 17px 15px;
+        }
+      }
+    </style>
+
+</head>
+<body class="bg-roseSoft dark:bg-[#121017] text-slate-700 dark:text-slate-200 antialiased selection:bg-pink-400 selection:text-white transition-colors duration-300 min-h-screen flex flex-col justify-between">
+
+    <div id="splashScreen" class="fixed inset-0 z-50 bg-gradient-to-br from-pink-100 via-purple-100 to-amber-50 dark:from-slate-950 dark:via-purple-950 dark:to-slate-900 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-700">
+        <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+            <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-pink-300 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-300 rounded-full blur-3xl animate-pulse" style="animation-delay: 1.5s"></div>
+        </div>
+        <div class="relative z-10 max-w-lg space-y-6">
+            <div class="text-6xl md:text-7xl mb-2 floating">🌷</div>
+            <h1 class="text-3xl md:text-5xl font-black bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 bg-clip-text text-transparent tracking-tight">
+                فرات… حكاية أمل
+            </h1>
+            <p class="text-lg md:text-xl font-medium text-slate-600 dark:text-slate-300 font-serif">
+                «إلى قلبٍ يستحق كل الحب والدعاء 🤍»
+            </p>
+            <div class="pt-6">
+                <button onclick="enterSite()" aria-label="الدخول إلى موقع فرات حكاية أمل" class="bg-gradient-to-r from-pink-500 via-purple-600 to-pink-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition text-base md:text-lg flex items-center justify-center gap-2 mx-auto">
+                    <span>✨</span> ادخلي إلى عالم الأمل <span>✨</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <header class="sticky top-0 z-40 glass-card border-b border-pink-100 dark:border-purple-900/50 shadow-sm transition-colors">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <button onclick="switchPage('home')" class="flex items-center gap-2 group text-right">
+                <span class="text-2xl floating">🌷</span>
+                <span class="font-black text-lg md:text-xl bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">فرات… حكاية أمل</span>
+            </button>
+
+            <!-- القائمة للشاشات الكبيرة -->
+            <nav class="hidden lg:flex items-center gap-1 text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-300 bg-pink-50/50 dark:bg-purple-950/40 p-1.5 rounded-2xl border border-pink-100 dark:border-purple-900/30">
+                <button onclick="switchPage('home')" id="nav-home" class="nav-btn px-3 py-1.5 rounded-xl hover:bg-white dark:hover:bg-purple-900 transition text-pink-600 dark:text-pink-300 font-bold">الرئيسية</button>
+                <button onclick="switchPage('duas')" id="nav-duas" class="nav-btn px-3 py-1.5 rounded-xl hover:bg-white dark:hover:bg-purple-900 transition">🤲🏻 الأدعية</button>
+                <button onclick="switchPage('quran')" id="nav-quran" class="nav-btn px-3 py-1.5 rounded-xl hover:bg-white dark:hover:bg-purple-900 transition">📖 القرآن</button>
+                <button onclick="switchPage('words')" id="nav-words" class="nav-btn px-3 py-1.5 rounded-xl hover:bg-white dark:hover:bg-purple-900 transition">🌸 كلمات</button>
+                <button onclick="switchPage('messages')" id="nav-messages" class="nav-btn px-3 py-1.5 rounded-xl hover:bg-white dark:hover:bg-purple-900 transition">💌 رسائل</button>
+                <button onclick="switchPage('wishes')" id="nav-wishes" class="nav-btn px-3 py-1.5 rounded-xl hover:bg-white dark:hover:bg-purple-900 transition">🎁 الأمنيات</button>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleDarkMode()" id="darkModeBtn" class="p-2.5 rounded-2xl bg-pink-100 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:scale-105 transition shadow-sm text-sm" title="الوضع الليلي">
+                    🌙
+                </button>
+                <button onclick="toggleMobileMenu()" class="lg:hidden p-2.5 rounded-2xl bg-pink-100 dark:bg-purple-900 text-pink-700 dark:text-pink-300 transition">
+                    ☰
+                </button>
+            </div>
+        </div>
+
+        <!-- قائمة الهاتف المحمول -->
+        <div id="mobileMenu" class="hidden lg:hidden px-4 py-3 bg-white dark:bg-slate-900 border-t border-pink-100 dark:border-purple-900 space-y-2 text-sm font-bold">
+            <button onclick="switchPage('home'); toggleMobileMenu();" class="block w-full text-right px-4 py-2 rounded-xl hover:bg-pink-50 dark:hover:bg-purple-900">الرئيسية</button>
+            <button onclick="switchPage('duas'); toggleMobileMenu();" class="block w-full text-right px-4 py-2 rounded-xl hover:bg-pink-50 dark:hover:bg-purple-900">🤲🏻 الأدعية لفرات</button>
+            <button onclick="switchPage('quran'); toggleMobileMenu();" class="block w-full text-right px-4 py-2 rounded-xl hover:bg-pink-50 dark:hover:bg-purple-900">📖 القرآن والسكينة</button>
+            <button onclick="switchPage('words'); toggleMobileMenu();" class="block w-full text-right px-4 py-2 rounded-xl hover:bg-pink-50 dark:hover:bg-purple-900">🌸 كلمات لفرات</button>
+            <button onclick="switchPage('messages'); toggleMobileMenu();" class="block w-full text-right px-4 py-2 rounded-xl hover:bg-pink-50 dark:hover:bg-purple-900">💌 رسالة إلى فرات</button>
+            <button onclick="switchPage('wishes'); toggleMobileMenu();" class="block w-full text-right px-4 py-2 rounded-xl hover:bg-pink-50 dark:hover:bg-purple-900">🎁 صندوق الأمنيات</button>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-10 w-full flex-grow">
+
+        <!-- ================= PAGE 1: HOME ================= -->
+        <section id="page-home" class="page-section active space-y-12 text-center py-6">
+            <div class="relative">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-pink-300/20 dark:bg-pink-900/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="inline-block mb-6 p-6 rounded-3xl bg-gradient-to-br from-pink-100 to-purple-100 dark:from-purple-950 dark:to-slate-900 text-pink-600 dark:text-pink-400 text-5xl pulse-glow shadow-inner">
+                    🌷✨
+                </div>
+
+                <p class="text-sm md:text-base font-bold text-pink-600 dark:text-pink-400 uppercase tracking-widest mb-3">
+                    أهلًا بكِ في عالم فرات 🤍
+                </p>
+
+                <h2 class="text-4xl md:text-6xl font-black text-slate-800 dark:text-white mb-6 leading-tight">
+                    فرات… حكاية أمل 🌷
+                </h2>
+
+                <p class="text-lg md:text-2xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto mb-8 font-serif">
+                    «كل دعوة هنا هي أمل جديد لفرات، وكل قلب يشارك بالدعاء يترك أثرًا جميلًا 🤍🌷»
+                </p>
+
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="switchPage('addword')" class="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:opacity-95 text-white font-bold py-4 px-8 rounded-2xl shadow-xl shadow-pink-500/25 transition transform hover:-translate-y-1 text-base flex items-center gap-2"><span>💗</span> أضيفي كلمة لفوفو</button>
+                    <button onclick="switchPage('duas')" class="bg-white dark:bg-slate-800 hover:bg-pink-50 dark:hover:bg-slate-700 text-purple-700 dark:text-purple-300 border-2 border-purple-200 dark:border-purple-800 font-bold py-4 px-8 rounded-2xl shadow-sm transition transform hover:-translate-y-1 text-base flex items-center gap-2">
+                        <span>🤲🏻</span> تصفح الأدعية 🤍
+                    </button>
+                </div>
+
+                <!-- عداد المحبة -->
+                <div class="mt-12 glass-card p-6 md:p-8 rounded-3xl max-w-md mx-auto border border-pink-200/80 shadow-lg">
+                    <p class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2">كم قلبًا دعا لفرات؟ 💗</p>
+                    <div class="text-4xl md:text-5xl font-black text-pink-600 dark:text-pink-400 mb-2" id="globalCounter">0</div>
+                    <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">قلبًا يحمل الأمل لفرات 🤍</p>
+                </div>
+            </div>
+
+            <!-- زهرة اليوم -->
+            <div class="glass-card p-8 rounded-3xl border border-pink-200/80 bg-gradient-to-r from-pink-50/70 via-purple-50/40 to-amber-50/60 dark:from-purple-950/40 dark:via-slate-900 dark:to-slate-900 shadow-lg text-center">
+                <span class="text-xs font-bold text-pink-600 dark:text-pink-400 uppercase tracking-widest block mb-3">🌸 زهرة اليوم لفرات</span>
+                <p id="dailyFlowerText" class="text-xl md:text-2xl text-slate-800 dark:text-slate-100 font-bold font-serif leading-relaxed max-w-2xl mx-auto">
+                    «اليوم يحمل معه أملًا جديدًا وغدًا أجمل بإذن الله يا فرات.»
+                </p>
+            </div>
+
+        </section>
+
+        <!-- ================= PAGE 2: DUAS (الأدعية) ================= -->
+        <section id="page-duas" class="page-section space-y-8 py-6">
+            <div class="text-center max-w-3xl mx-auto">
+                <h3 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white">🤲🏻 دعوات من القلب إلى فرات</h3>
+                <p class="text-slate-600 dark:text-slate-300 text-base mt-2">اختاري أي دعاء وارفعيه بنية صادقة لفرات، لعلّها تكون كلمة أمل ورحمة 🤍</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto" id="duasContainer">
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم اشفِ فرات شفاءً تامًا، وألبسها ثوب الصحة والعافية، وخفف عنها كل تعب، وردّ إليها قوتها وطمأنينتها، واجعل أيامها القادمة أجمل وأهدأ وأطيب.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">شفاء وعافية 🤍</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم احفظ فرات بعينك التي لا تنام، وأحطها بلطفك ورحمتك، وكن معها في كل لحظة، واملأ قلبها سكينة، واجعل حولها من الخير والرحمة ما يطمئنها ويقويها.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">حفظ ورعاية 🤍</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم اجعل لفرات من كل ضيق فرجًا، ومن كل هم راحة، ومن كل خوف أمانًا، ومن كل ألم شفاءً، وارزقها قوةً وصبرًا وطمأنينة، وبشّرها بما يسر قلبها.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">فرج قريب 🤍</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم اجعل القادم لفرات خيرًا من الماضي، واكتب لها في كل صباح خبرًا جميلًا، وفي كل مساء راحةً وسلامًا، واجعل الشفاء أقرب إليها من كل أمنية، وارزقها أيامًا مليئة بالعافية والفرح.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">أيام أجمل 🤍</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«يا رب، إنّا نسألك لفرات رحمةً تحيط بها، ولطفًا يسندها، وقوةً تسري في جسدها، وراحةً تسكن قلبها، وأن تجعل كل دعاء يُرفع من أجلها بابًا من أبواب الخير والطمأنينة.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">رحمة ولطف 🤍</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم يا واسع الرحمة، اشفِ فرات، وطمئن قلبها، وأكرمها بعافيةٍ لا تزول، واصرف عنها كل سوء، واجعل حولها أهلًا يحبونها وقلوبًا تدعو لها، واكتب لها السلامة والخير.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">عافية وسلامة 🤍</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم اجعل فرات ترى من لطفك ما ينسيها كل تعب، ومن كرمك ما يملأ قلبها أملًا، ومن رحمتك ما يحيط بها من كل جانب، وارزقها شفاءً وراحةً وسكينةً وبشارةً تفرح بها.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">بشارة خير 🤍</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم اجعل فرات في حفظك ورعايتك، ولا ترها بأسًا يؤلم قلبها، وأبدل خوفها طمأنينة، وتعبها راحة، وضعفها قوة، واجعل لها من كل أمرٍ يسيرًا ومن كل دعاءٍ نصيبًا من الخير.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">في حفظ الله 🤍</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم في هذا اليوم وفي كل يوم، اجعل لفرات نصيبًا من الفرح لا ينقطع، ومن العافية ما يطمئن قلبها، ومن الراحة ما يخفف عنها، ومن الأمل ما يجعلها ترى الخير قريبًا بإذنك يا أرحم الراحمين.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">أمل جديد 🤍</span>
+                    </div>
+                </div>
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم يا لطيف يا رحيم، الطف بفرات فيما نزل بها، واشملها بعنايتك، وأنزل على قلبها السكينة، وعلى جسدها العافية، وأبدل كل تعبٍ راحة، وكل خوفٍ أمانًا، واكتب لها من لطفك شفاءً وخيرًا وفرجًا قريبًا.»</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-bold">لطف ورحمة 🤍</span>
+                    </div>
+                </div>
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم اشفِ فرات شفاءً لا يغادر سقمًا، وأتمم عليها نعمتك، وأحطها برحمتك، وارزقها من لطفك ما يخفف عنها، ومن عافيتك ما يملأ أيامها راحةً وسلامًا.»</p>
+                    <div class="flex items-center justify-between gap-3"><button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button><span class="text-xs text-purple-600 dark:text-purple-400 font-bold">شفاء تام 🤍</span></div>
+                </div>
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«يا رب اجعل فرات في ودائع حفظك، فلا يمسها مكروه، وألبسها لباس العافية، واجعل في قلبها نورًا وسكينة، وفي أيامها فرحًا، وفي طريقها تيسيرًا وخيرًا.»</p>
+                    <div class="flex items-center justify-between gap-3"><button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button><span class="text-xs text-purple-600 dark:text-purple-400 font-bold">حفظ ولطف 🤍</span></div>
+                </div>
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم أكرم فرات بالراحة بعد التعب، وبالطمأنينة بعد القلق، وبالبشارة بعد الانتظار، واجعل كل يوم يمر عليها أخف وأجمل، وقرّب إليها أسباب العافية والخير.»</p>
+                    <div class="flex items-center justify-between gap-3"><button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button><span class="text-xs text-purple-600 dark:text-purple-400 font-bold">راحة وبشارة 🤍</span></div>
+                </div>
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم إنّا نسألك لفرات لطفًا لا ينقطع، ورحمةً تسعها، وعافيةً تحيط بها، وقوةً تعينها، ونفسًا مطمئنة، وبالًا هادئًا، وخاتمةً لكل تعب بالخير والراحة.»</p>
+                    <div class="flex items-center justify-between gap-3"><button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button><span class="text-xs text-purple-600 dark:text-purple-400 font-bold">رحمة وسكينة 🤍</span></div>
+                </div>
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«يا رب اجعل نصيب فرات من الدنيا خيرًا كثيرًا، ومن الصحة عافيةً كاملة، ومن القلب راحةً وسرورًا، واكتب لها من الأقدار أجملها، ومن الأيام أطيبها.»</p>
+                    <div class="flex items-center justify-between gap-3"><button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button><span class="text-xs text-purple-600 dark:text-purple-400 font-bold">خير وعافية 🤍</span></div>
+                </div>
+                <div class="glass-card p-7 rounded-3xl border border-pink-200/80 flex flex-col justify-between min-h-[220px]">
+                    <p class="readable-dua text-slate-700 dark:text-slate-200 text-xl md:text-2xl leading-relaxed mb-6 font-serif font-bold">«اللهم اجعل فرات محاطةً بدعوات لا تُرد، وقلوبًا تحبها، وأخبارًا تسرّها، وأيامًا تحمل لها الراحة والسكينة. يا رب اجعل في كل لحظة من حياتها لطفًا من عندك.»</p>
+                    <div class="flex items-center justify-between gap-3"><button onclick="triggerGlobalPrayer();" class="text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"><span>🤲🏻</span> دعوت لها (+1)</button><span class="text-xs text-purple-600 dark:text-purple-400 font-bold">دعوات وأمل 🤍</span></div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================= PAGE 3: QURAN (القرآن) ================= -->
+        <section id="page-quran" class="page-section space-y-8 py-6">
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-50 dark:bg-purple-950/40 text-pink-700 dark:text-pink-300 font-bold mb-4">
+                    🤍 آيات للطمأنينة والشفاء
+                </div>
+                <h3 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white">📖 القرآن الكريم لطمأنينة القلب</h3>
+                <p class="text-slate-600 dark:text-slate-300 text-base mt-3 leading-relaxed">
+                    اختاري الآية التي تريدين قراءتها، واضغطي عليها لتظهر كاملة. 🤍
+                    <br>
+                    القرآن شفاء ورحمة، والشفاء بيد الله وحده، فنقرأ وندعو ونرجو رحمته.
+                </p>
+            </div>
+
+            <!-- آيات الشفاء والأدعية المرتبطة بها -->
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="h-10 w-10 rounded-2xl bg-pink-100 dark:bg-pink-950/40 flex items-center justify-center text-xl">🌷</div>
+                    <div>
+                        <h4 class="font-black text-2xl text-slate-800 dark:text-white">آيات الشفاء والرجاء 🤍</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">اضغطي على البطاقة لتظهر الآية كاملة 🤍</p>
+                    </div>
+                </div>
+
+                <div class="quran-grid">
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">سورة الفاتحة</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">سورة الفاتحة كاملة 🤍</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">تُقرأ في الرقية</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ۝ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَٰنِ الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">يونس — 57</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">شفاء ورحمة للقلوب</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">آية في الشفاء والرحمة</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">يَا أَيُّهَا النَّاسُ قَدْ جَاءَتْكُم مَّوْعِظَةٌ مِّن رَّبِّكُمْ وَشِفَاءٌ لِّمَا فِي الصُّدُورِ وَهُدًى وَرَحْمَةٌ لِّلْمُؤْمِنِينَ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">الإسراء — 82</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">القرآن شفاء ورحمة</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">من آيات الشفاء</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ ۙ وَلَا يَزِيدُ الظَّالِمِينَ إِلَّا خَسَارًا</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">فصلت — 44</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">هدى وشفاء</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">هداية وشفاء للمؤمنين</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">قُلْ هُوَ لِلَّذِينَ آمَنُوا هُدًى وَشِفَاءٌ ۖ وَالَّذِينَ لَا يُؤْمِنُونَ فِي آذَانِهِمْ وَقْرٌ وَهُوَ عَلَيْهِمْ عَمًى ۚ أُولَٰئِكَ يُنَادَوْنَ مِن مَّكَانٍ بَعِيدٍ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">الشعراء — 80</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">وإذا مرضت فهو يشفين</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">آية قصيرة مطمئنة</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">وَإِذَا مَرِضْتُ فَهُوَ يَشْفِينِ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">الأنبياء — 83–84</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">دعاء أيوب عليه السلام</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">دعاء عند الضر</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">وَأَيُّوبَ إِذْ نَادَىٰ رَبَّهُ أَنِّي مَسَّنِيَ الضُّرُّ وَأَنتَ أَرْحَمُ الرَّاحِمِينَ ۝ فَاسْتَجَبْنَا لَهُ فَكَشَفْنَا مَا بِهِ مِن ضُرٍّ وَآتَيْنَاهُ أَهْلَهُ وَمِثْلَهُم مَّعَهُمْ رَحْمَةً مِّنْ عِندِنَا وَذِكْرَىٰ لِلْعَابِدِينَ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">النحل — 69</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">فيه شفاء للناس</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">آية عن الشفاء</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">ثُمَّ كُلِي مِن كُلِّ الثَّمَرَاتِ فَاسْلُكِي سُبُلَ رَبِّكِ ذُلُلًا ۚ يَخْرُجُ مِن بُطُونِهَا شَرَابٌ مُّخْتَلِفٌ أَلْوَانُهُ فِيهِ شِفَاءٌ لِّلنَّاسِ ۗ إِنَّ فِي ذَٰلِكَ لَآيَةً لِّقَوْمٍ يَتَفَكَّرُونَ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">البقرة — 255</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">آية الكرسي 🤍</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">للسكينة والتحصين</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَؤُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">سورة الشرح</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">فإن مع العسر يسرا 🌷</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">للتثبيت والأمل</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ ۝ وَوَضَعْنَا عَنكَ وِزْرَكَ ۝ الَّذِي أَنقَضَ ظَهْرَكَ ۝ وَرَفَعْنَا لَكَ ذِكْرَكَ ۝ فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ فَإِذَا فَرَغْتَ فَانصَبْ ۝ وَإِلَىٰ رَبِّكَ فَارْغَب</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">سورة الضحى</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">ما ودّعك ربك وما قلى 🤍</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">للسكينة وحسن الرجاء</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">وَالضُّحَى ۝ وَاللَّيْلِ إِذَا سَجَى ۝ مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَى ۝ وَلَلْآخِرَةُ خَيْرٌ لَّكَ مِنَ الْأُولَى ۝ وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَى ۝ أَلَمْ يَجِدْكَ يَتِيمًا فَآوَى ۝ وَوَجَدَكَ ضَالًّا فَهَدَى ۝ وَوَجَدَكَ عَائِلًا فَأَغْنَى ۝ فَأَمَّا الْيَتِيمَ فَلَا تَقْهَرْ ۝ وَأَمَّا السَّائِلَ فَلَا تَنْهَرْ ۝ وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">الإخلاص</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">سورة الإخلاص 🤍</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">من السور القصيرة في الرقية</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">الفلق</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">سورة الفلق 🌿</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">للتحصين والرقية</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ</div></div>
+                    </details>
+
+                    <details class="quran-accordion glass-card rounded-3xl border border-pink-100 dark:border-purple-900 overflow-hidden">
+                        <summary class="quran-summary p-5 md:p-6 cursor-pointer list-none flex items-center justify-between gap-2">
+                            <div><span class="text-xs font-bold text-pink-600 dark:text-pink-300">الناس</span><h5 class="font-black text-lg text-slate-800 dark:text-white mt-1">سورة الناس 🌿</h5><p class="text-sm text-slate-500 dark:text-slate-400 mt-2">للتحصين والسكينة</p></div><span class="quran-plus shrink-0">+</span>
+                        </summary>
+                        <div class="quran-hidden-content px-5 md:px-6 pb-6"><div class="quran-text">قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ</div></div>
+                    </details>
+
+                </div>
+            </div>
+
+            <!-- الدعاء الختامي بعد الآيات -->
+            <div class="max-w-5xl mx-auto">
+                <div class="glass-card p-7 md:p-9 rounded-3xl border border-pink-200 dark:border-purple-800 bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-purple-950/40 dark:via-slate-900 dark:to-slate-900 shadow-lg text-center">
+                    <div class="text-4xl mb-3">🤲🏻🤍</div>
+                    <h4 class="font-black text-pink-700 dark:text-pink-300 text-2xl mb-4">دعاء لفرات بعد الآيات</h4>
+                    <p class="text-slate-800 dark:text-slate-100 font-serif font-bold text-xl md:text-2xl leading-[2.15]">
+                        «اللهم اشفِ فرات شفاءً تامًا لا يغادر سقمًا، وأذهب عنها المرض والألم، وردّ إليها صحتها وعافيتها، واجعل ما أصابها رفعةً لها ورحمةً بها، وطمئن قلبها، واحفظها بعينك التي لا تنام، إنك أنت الشافي، لا شفاء إلا شفاؤك.»
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: WORDS (كلمات لفرات) ================= -->
+        <section id="page-words" class="page-section space-y-8 py-6">
+            <div class="text-center max-w-2xl mx-auto">
+                <h3 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white">🌸 كلمات لفرات</h3>
+                <p class="text-slate-600 dark:text-slate-300 text-base mt-2">كلمات دافئة تزرع الأمل في قلبك الجميل 🤍</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">✨</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«فرات، أنتِ أقوى مما تتخيلين، وكل يوم جديد هو فرصة جديدة للأمل.»</p>
+                        <span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">ثقي بذلك دائماً</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-purple-50 dark:bg-purple-900">🌱</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«حولك قلوب تحبك وتدعو لك، وربنا أرحم بكِ من الجميع.»</p>
+                        <span class="text-xs text-purple-600 dark:text-purple-400 font-semibold">أشرقي من جديد</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-amber-50 dark:bg-amber-950">🌷</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«ابتسامتكِ أجمل من كل الكلمات.»</p>
+                        <span class="text-xs text-amber-600 dark:text-amber-400 font-semibold">لا تغيبي ابتسامتك</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">💖</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«الأيام الصعبة لا تدوم، والأمل يبقى.»</p>
+                        <span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">القادم أجمل</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">🕊️</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1"> «حبيبتي، لا تستسلمي للمرض سيأتي يوم تبتسمين فيه لأنك تجاوزتِ كل هذا التعب.»</p>
+                        <span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">كلمة طيبة لفرات</span>
+                     </div>
+                </div>
+                
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">🤍</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1"> « فرات، ربي يكتب لكِ أيامًا أجمل من كل ما مضى، ويعيد لقلبكِ الفرح ولوجهكِ الابتسامة »</p>
+                        <span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">أملنا بالله كبير 🤲🏻</span>
+                     </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                   <span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">🌸</span>
+                   <div>
+                       <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«فوفه، ما دام الله معكِ فلا تخافي من شيء، فبعد كل هذا التعب سيأتي الفرج، وبعد كل دعاء ستأتي الإجابة بإذن الله.»</p>
+                       <span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">الأمل بالله لا ينتهي</span>
+                     </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">🌈</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«اللهم اشفِ فرات شفاءً يملأ جسدها عافية، وقلبها فرحًا، واجعل كل ألم مرّت به بدايةً لأيام أجمل بإذن الله.»</p>
+                        <span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">يا رب بشرنا بشفائها 🤲🏻</span>
+                     </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">🦋</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«فرات، لكِ في قلوبنا دعوات لا تنتهي، ولنا في الله أمل لا يخيب، وسيأتي اليوم الذي نفرح فيه بعودتكِ سالمةً معافاة بإذن الله.»</p>
+                        <span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">سنفرح بشفائكِ يا فرات 🤍</span>
+                     </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950">
+                    <span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">🌙</span>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«يا رب اجعل شفاء فرات قريبًا، واجعل لها بعد التعب راحة، وبعد الألم عافية، وبعد الخوف طمأنينة.»</p>
+                        <span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">اللهم آمين 🤲🏻</span>
+                     </div>
+                </div>
+
+
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950"><span class="text-3xl p-3 rounded-2xl bg-purple-50 dark:bg-purple-900">🌼</span><div><p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«فرات، نتمنى لكِ راحةً تملأ قلبك، وعافيةً تزيّن أيامك، وفرحًا يجيء إليكِ من أوسع أبواب الخير.»</p><span class="text-xs text-purple-600 dark:text-purple-400 font-semibold">دعوة من القلب 🤍</span></div></div>
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950"><span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">🌸</span><div><p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«ربي يكتب لكِ من كل تعب أجرًا، ومن كل يوم فرحة، ومن كل لحظة لطفًا جميلًا يطمئن قلبك.»</p><span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">لطف الله قريب 🤍</span></div></div>
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950"><span class="text-3xl p-3 rounded-2xl bg-amber-50 dark:bg-amber-950">✨</span><div><p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«فرات، اجعلي في قلبك مساحة للأمل، فدعوات المحبين حولك تحمل أجمل الأمنيات لكِ.»</p><span class="text-xs text-amber-600 dark:text-amber-400 font-semibold">مساحة أمل 🌷</span></div></div>
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950"><span class="text-3xl p-3 rounded-2xl bg-rose-50 dark:bg-purple-900">💗</span><div><p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«كل قلب هنا يترك لكِ كلمة، وكل كلمة تحمل دعوة، وكل دعوة تحمل أمنية بأن تكون أيامك القادمة أهدأ وأجمل.»</p><span class="text-xs text-rose-600 dark:text-pink-400 font-semibold">قلوب معكِ 🤍</span></div></div>
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950"><span class="text-3xl p-3 rounded-2xl bg-purple-50 dark:bg-purple-900">🕊️</span><div><p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«يا فرات، ندعو الله أن يبدّل كل لحظة ثقيلة براحة، وكل خوف بسكينة، وأن يرزقكِ أيامًا تبتسمين فيها من قلبك.»</p><span class="text-xs text-purple-600 dark:text-purple-400 font-semibold">راحة للقلب 🤍</span></div></div>
+                <div class="glass-card p-6 rounded-3xl flex items-start gap-4 border border-pink-100 dark:border-purple-950"><span class="text-3xl p-3 rounded-2xl bg-pink-50 dark:bg-purple-900">🌷</span><div><p class="text-slate-800 dark:text-slate-200 font-bold text-lg mb-1">«ربي يجعل لكِ في كل طريق نورًا، وفي كل خطوة تيسيرًا، وفي كل دعاء نصيبًا من الخير، وفي كل صباح سببًا جديدًا للابتسام.»</p><span class="text-xs text-pink-600 dark:text-pink-400 font-semibold">غد أجمل بإذن الله ✨</span></div></div>
+
+            </div>
+
+        </section>
+
+        <!-- ================= PAGE 5: ADD A WORD ================= -->
+        <section id="page-addword" class="page-section space-y-8 py-6 max-w-2xl mx-auto">
+            <div class="text-center">
+                <span class="inline-block bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-bold tracking-wider uppercase text-xs px-4 py-1.5 rounded-full mb-3">مساحة الكلمات</span>
+                <h3 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white">💗 كلمات من القلب لفرات</h3>
+                <p class="text-slate-600 dark:text-slate-300 text-sm md:text-base mt-2">اكتبي كلمة من قلبك، وأمنيات الزوار الجميلة ستظهر هنا أيضًا 🤍</p>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl space-y-4 border border-pink-200 dark:border-purple-900 shadow-lg">
+                <input type="text" id="wordName" maxlength="50" placeholder="اسمك أو لقبك (اختياري)"
+                    class="w-full px-4 py-3 rounded-2xl border border-pink-200 dark:border-purple-900 focus:outline-none focus:ring-2 focus:ring-pink-400 text-sm bg-white/80 dark:bg-slate-800 dark:text-white">
+
+                <textarea id="wordText" maxlength="180" rows="4" placeholder="اكتبي كلمة من قلبك لفوفو... 💗"
+                    class="w-full px-4 py-3 rounded-2xl border border-pink-200 dark:border-purple-900 focus:outline-none focus:ring-2 focus:ring-pink-400 text-sm bg-white/80 dark:bg-slate-800 dark:text-white resize-none"></textarea>
+
+                <button onclick="addWordForFofou()" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-95 text-white font-bold py-3.5 rounded-2xl transition text-sm shadow-md">
+                    💗 أضيفي كلمتي
+                </button>
+                <p id="wordAlert" class="text-pink-600 dark:text-pink-400 text-xs font-bold text-center hidden bg-pink-50 dark:bg-purple-950 p-2.5 rounded-xl"></p>
+            </div>
+
+            <div id="wordsAddedList" class="grid gap-4"></div>
+        </section>
+
+        <!-- ================= PAGE 6: MESSAGES (رسالة إلى فرات) ================= -->
+        <section id="page-messages" class="page-section space-y-8 py-6 max-w-2xl mx-auto">
+            <div class="text-center">
+                <h3 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white">💌 رسالة إلى فرات</h3>
+                <p class="text-slate-600 dark:text-slate-300 text-sm mt-2">كل كلمة حب تترك أثرًا جميلًا 🤍</p>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl space-y-4 border border-pink-200 dark:border-purple-900">
+                <input type="text" id="visitorName" maxlength="50" placeholder="اسمكِ أو صلتكِ بـ فرات" class="w-full px-4 py-3 rounded-2xl border border-pink-200 dark:border-purple-900 focus:outline-none focus:ring-2 focus:ring-pink-400 text-sm bg-white/80 dark:bg-slate-800 dark:text-white">
+                <textarea id="visitorMessage" maxlength="300" rows="3" placeholder="اكتبي رسالة دعم أو دعاء لفرات (300 حرف كحد أقصى)..." class="w-full px-4 py-3 rounded-2xl border border-pink-200 dark:border-purple-900 focus:outline-none focus:ring-2 focus:ring-pink-400 text-sm bg-white/80 dark:bg-slate-800 dark:text-white resize-none"></textarea>
+                <button onclick="submitVisitorMessage()" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-95 text-white font-bold py-3.5 rounded-2xl transition text-sm shadow-md">
+                    أرسل رسالتي إلى فرات 💌
+                </button>
+                <p id="msgAlert" class="text-pink-600 dark:text-pink-400 text-xs font-bold text-center hidden bg-pink-50 dark:bg-purple-950 p-2.5 rounded-xl"></p>
+            </div>
+
+            <div id="visitorMessages" class="space-y-4"></div>
+        </section>
+
+        <!-- ================= PAGE 7: WISHES (صندوق الأمنيات) ================= -->
+        <section id="page-wishes" class="page-section space-y-8 py-6 max-w-2xl mx-auto">
+            <div class="text-center">
+                <h3 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white">🎁 اكتبي أمنية لفرات 🌷</h3>
+                <p class="text-slate-600 dark:text-slate-300 text-sm mt-2">شاركي أمنية صادقة لفرات واجعليها تضيء هنا.</p>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl space-y-4 border border-purple-200 dark:border-purple-900">
+                <textarea id="visitorWish" maxlength="250" rows="3" placeholder="اكتبي أمنية لفرات..." class="w-full px-4 py-3 rounded-2xl border border-purple-200 dark:border-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-white/80 dark:bg-slate-800 dark:text-white resize-none"></textarea>
+                <button onclick="submitVisitorWish()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 text-white font-bold py-3.5 rounded-2xl transition text-sm shadow-md">
+                    أرسل الأمنية ✨
+                </button>
+                <p id="wishAlert" class="text-purple-600 dark:text-purple-400 text-xs font-bold text-center hidden bg-purple-50 dark:bg-purple-950 p-2.5 rounded-xl"></p>
+            </div>
+
+            <div id="visitorWishes" class="grid gap-4"></div>
+            <p class="text-center text-purple-600 dark:text-purple-300 font-bold pt-2">🤍 كل أمنية هنا هي دعوة جميلة وأمل جديد لفرات.</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 text-white py-16 px-4 text-center border-t border-purple-900/40 mt-20 relative overflow-hidden">
+        <div class="max-w-3xl mx-auto space-y-6 relative z-10">
+            <span class="text-5xl inline-block floating">🤍🌷</span>
+            <h3 class="text-2xl md:text-4xl font-black text-pink-300">من أجل فرات 🤍</h3>
+            <p class="text-base md:text-xl text-slate-300 leading-relaxed font-serif">
+                «هذه الصفحة ليست مجرد موقع… إنها مجموعة من الدعوات والكلمات والأمنيات التي اجتمعت من أجل فتاة اسمها فرات.<br><br>
+                نسأل الله أن يكتب لفرات الشفاء والعافية والراحة والطمأنينة، وأن يجعل أيامها القادمة مليئة بالخير والفرح.<br><br>
+                فرات… ستزهر الأيام من جديد بإذن الله 🌷»
+            </p>
+            <div class="pt-6 border-t border-purple-900/50 space-y-3">
+                <p class="text-xs text-pink-400 font-medium">
+                    صُنع بكل حب من أجل فرات 🤍
+                </p>
+                <p class="text-xs text-slate-400">
+                    خصوصيتك تهمنا 🤍 هذا الموقع مخصص للدعم والدعاء لفرات، ونرجو عدم كتابة أي معلومات شخصية حساسة.
+                </p>
+                <p class="text-xs text-slate-500">
+                    ⚠️ تنبيه: هذا الموقع مساحة للدعم والدعاء والأمل، وليس مصدرًا للمعلومات أو الاستشارات الطبية.
+                </p>
+                <div class="space-y-1">
+                    <button onclick="openPrivacyModal()" class="text-xs text-pink-300 underline hover:text-pink-200 transition">
+                        سياسة الخصوصية 🔐
+                    </button>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-500 tracking-wide">
+                        Ansam nedal bany atyah
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="privacyModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 p-8 md:p-10 rounded-3xl max-w-lg w-full shadow-2xl relative border border-pink-200 dark:border-purple-800 space-y-4">
+            <h3 class="text-2xl font-black text-pink-600 dark:text-pink-400 text-center">سياسة الخصوصية 🔐</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-serif">
+                نحن نحترم خصوصية جميع الزوار. لا تكتبي معلومات شخصية حساسة في الرسائل أو الأمنيات. عند تفعيل الحفظ المشترك، قد تظهر المشاركات للزوار الآخرين حتى يبقى الموقع مساحة مشتركة للدعاء والأمل. وإذا لم يتم تفعيل قاعدة البيانات، تبقى البيانات على هذا الجهاز فقط.
+            </p>
+            <div class="text-center pt-4">
+                
+        <button onclick="clearLocalData()" class="mt-3 w-full py-3 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-300 transition">
+          🗑️ مسح الرسائل والأمنيات والعداد من هذا الجهاز
+        </button>
+
+        <button onclick="closePrivacyModal()" class="bg-slate-800 dark:bg-purple-900 text-white font-bold px-8 py-3 rounded-2xl text-sm shadow-lg transition">
+                    فهمت 🤍
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // لتفعيل الحفظ المشترك بين جميع الزوار: ضعي بيانات Supabase هنا.
+        // اتركيها فارغة وسيعمل الموقع محليًا فقط إلى أن تكملي إعداد قاعدة البيانات.
+        const SUPABASE_URL = "";
+        const SUPABASE_PUBLISHABLE_KEY = "";
+        const supabaseClient = (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY && window.supabase)
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+            : null;
+    </script>
+
+    <script>
+        let globalPrayerCount = parseInt(localStorage.getItem('forat_prayer_count'), 10);
+        if (!Number.isFinite(globalPrayerCount) || globalPrayerCount < 0) globalPrayerCount = 0;
+
+        async function loadGlobalPrayerCount() {
+            if (!supabaseClient) return;
+            const { data, error } = await supabaseClient
+                .from('site_stats')
+                .select('prayer_count')
+                .eq('id', 1)
+                .maybeSingle();
+            if (!error && data && Number.isFinite(Number(data.prayer_count))) {
+                globalPrayerCount = Number(data.prayer_count);
+                safeStorageSet('forat_prayer_count', String(globalPrayerCount));
+                const counter = document.getElementById('globalCounter');
+                if (counter) counter.textContent = String(globalPrayerCount);
+            }
+        }
+
+        const dailyFlowerQuotes = [
+            "«اليوم يحمل معه أملًا جديدًا وغدًا أجمل بإذن الله يا فرات.»",
+            "«ابتسمي يا فرات، فهناك قلوب كثيرة تدعو لكِ في كل سجدة.»",
+            "«الأمل لا يحتاج إلا إلى قلب يؤمن به، وأنتِ أطهر الناس قلباً.»",
+            "«كل صباح بداية جديدة، وكل خطوة تقربكِ للشفاء التام.»"
+        ];
+
+        const extraDuas = [
+            "«اللهم اشفِ فرات شفاءً لا يغادر سقمًا.»",
+            "«يا رب ارفع عنها كل تعب واكتب لها عافية تدوم.»",
+            "«اللهم أفرغ على قلب فرات صبراً ونوراً وسكينة.»",
+            "«اللهم أنت الشافي لا شفاء إلا شفاؤك، اشفِ فرات شفاءً كاملاً.»"
+        ];
+
+        window.onload = function() {
+            document.getElementById('globalCounter').textContent = globalPrayerCount;
+            const randomQuote = dailyFlowerQuotes[Math.floor(Math.random() * dailyFlowerQuotes.length)];
+            const flowerEl = document.getElementById('dailyFlowerText');
+            if(flowerEl) flowerEl.textContent = randomQuote;
+
+            if(localStorage.getItem('forat_dark_mode') === 'true') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('darkModeBtn').textContent = '☀️';
+            }
+
+            renderVisitorMessages();
+            renderVisitorWishes();
+            renderFofouWords();
+            renderExtraDuas();
+            loadGlobalPrayerCount();
+            loadPublicEntries();
+        };
+
+        function switchPage(pageId) {
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            const targetSection = document.getElementById('page-' + pageId);
+            if(targetSection) {
+                targetSection.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => btn.classList.remove('text-pink-600', 'dark:text-pink-300', 'font-bold'));
+            const activeNav = document.getElementById('nav-' + pageId);
+            if(activeNav) {
+                activeNav.classList.add('text-pink-600', 'dark:text-pink-300', 'font-bold');
+            }
+        }
+
+        function enterSite() {
+            const splash = document.getElementById('splashScreen');
+            splash.style.opacity = '0';
+            setTimeout(() => { splash.style.display = 'none'; }, 700);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('forat_dark_mode', isDark);
+            document.getElementById('darkModeBtn').textContent = isDark ? '☀️' : '🌙';
+        }
+
+        async function triggerGlobalPrayer() {
+            if (supabaseClient) {
+                const { data, error } = await supabaseClient.rpc('increment_prayer_count');
+                if (!error && Number.isFinite(Number(data))) {
+                    globalPrayerCount = Number(data);
+                } else {
+                    globalPrayerCount += 1;
+                }
+            } else {
+                globalPrayerCount += 1;
+            }
+
+            safeStorageSet('forat_prayer_count', String(globalPrayerCount));
+            const counter = document.getElementById('globalCounter');
+            if (counter) counter.textContent = String(globalPrayerCount);
+
+            showToast("وصلت دعوة جديدة إلى سماء فرات 🤍");
+        }
+
+        function loadAnotherDua() {
+            const randomDua = extraDuas[Math.floor(Math.random() * extraDuas.length)];
+            const container = document.getElementById('duasContainer');
+            if (!container) return;
+
+            const existing = safeJsonGet('foratExtraDuas', []);
+            if (!existing.includes(randomDua)) {
+                existing.unshift(randomDua);
+                if (existing.length > 20) existing.length = 20;
+                safeStorageSet('foratExtraDuas', JSON.stringify(existing));
+            }
+            renderExtraDuas();
+            showToast('أضيف دعاء جديد وثبت في الصفحة 🤍');
+        }
+
+        function renderExtraDuas() {
+            const container = document.getElementById('duasContainer');
+            if (!container) return;
+            container.querySelectorAll('.extra-dua-card').forEach(el => el.remove());
+            const saved = safeJsonGet('foratExtraDuas', []);
+            saved.slice().reverse().forEach(dua => {
+                const div = document.createElement('div');
+                div.className = 'extra-dua-card glass-card p-7 rounded-3xl border border-purple-200 dark:border-purple-900 flex flex-col justify-between animate-fadeIn';
+                const p = document.createElement('p');
+                p.className = 'text-slate-700 dark:text-slate-200 text-lg md:text-xl leading-relaxed mb-6 font-serif font-semibold';
+                p.textContent = dua;
+                div.appendChild(p);
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between';
+                const btn = document.createElement('button');
+                btn.className = 'text-xs bg-pink-50 dark:bg-purple-900 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white font-bold px-4 py-2 rounded-xl transition shadow-sm';
+                btn.textContent = '🤲🏻 دعوت لها (+1)';
+                btn.onclick = triggerGlobalPrayer;
+                row.appendChild(btn);
+                row.appendChild(document.createTextNode('حفظك الله يا فرات 🤍'));
+                div.appendChild(row);
+                container.appendChild(div);
+            });
+        }
+
+
+        function openPrivacyModal() {
+            document.getElementById('privacyModal').classList.remove('hidden');
+        }
+
+        function closePrivacyModal() {
+            document.getElementById('privacyModal').classList.add('hidden');
+        }
+
+        function safeStorageGet(key, fallback = null) {
+      try {
+        const value = localStorage.getItem(key);
+        return value === null ? fallback : value;
+      } catch (error) {
+        console.warn("تعذر قراءة البيانات المحلية:", error);
+        return fallback;
+      }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (error) {
+        console.warn("تعذر حفظ البيانات المحلية:", error);
+        showToast("تعذر حفظ البيانات على هذا المتصفح");
+        return false;
+      }
+    }
+
+    function safeJsonGet(key, fallback = []) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function normalizeText(value, maxLength) {
+      return String(value ?? "")
+        .replace(/\u0000/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, maxLength);
+    }
+
+    function makeTextElement(tag, text, className = "") {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      el.textContent = text;
+      return el;
+    }
+
+
+    async function addWordForFofou() {
+      const nameInput = document.getElementById("wordName");
+      const wordInput = document.getElementById("wordText");
+      const alertEl = document.getElementById("wordAlert");
+
+      const name = normalizeText(nameInput?.value, 50) || "من قلبٍ محب 🤍";
+      const text = normalizeText(wordInput?.value, 180);
+
+      if (!text) {
+        if (alertEl) {
+          alertEl.textContent = "اكتبي الكلمة أولاً 💗";
+          alertEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      const words = safeJsonGet("fofouWords", []);
+      words.unshift({
+        name,
+        text,
+        date: new Date().toLocaleDateString("ar-JO")
+      });
+
+      if (words.length > 50) words.length = 50;
+
+      if (safeStorageSet("fofouWords", JSON.stringify(words))) {
+        const published = await savePublicEntry("word", name, text);
+        if (!published) return;
+        if (nameInput) nameInput.value = "";
+        if (wordInput) wordInput.value = "";
+        if (alertEl) {
+          alertEl.textContent = "وصلت كلمتك الحلوة لفوفو 🤍";
+          alertEl.classList.remove("hidden");
+        }
+        renderFofouWords();
+        showToast("تمت إضافة كلمتك الجميلة 💗");
+      }
+    }
+
+    function renderFofouWords() {
+      const container = document.getElementById("wordsAddedList");
+      if (!container) return;
+
+      container.replaceChildren();
+      const words = safeJsonGet("fofouWords", []);
+
+      if (!words.length) {
+        container.appendChild(
+          makeTextElement("p", "لسه ما في كلمات... كوني أول شخص يترك كلمة حلوة لفوفو 💗", "text-center text-gray-500 py-6")
+        );
+        return;
+      }
+
+      words.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "glass-card added-word-card p-6 rounded-3xl border border-pink-200 dark:border-purple-900";
+
+        const top = document.createElement("div");
+        top.className = "flex items-center justify-between gap-3 mb-3";
+
+        top.appendChild(
+          makeTextElement("strong", normalizeText(item.name, 50), "text-pink-600 dark:text-pink-300")
+        );
+        top.appendChild(
+          makeTextElement("span", normalizeText(item.date, 30), "text-xs text-gray-400")
+        );
+
+        card.appendChild(top);
+        card.appendChild(
+          makeTextElement("p", "«" + normalizeText(item.text, 180) + "»", "text-slate-700 dark:text-slate-200 leading-8 text-lg font-serif")
+        );
+        card.appendChild(
+          makeTextElement("div", "💗 كلمة من القلب", "text-xs text-purple-500 dark:text-purple-300 font-bold mt-4")
+        );
+
+        container.appendChild(card);
+      });
+    }
+
+    async function submitVisitorMessage() {
+      const nameInput = document.getElementById("visitorName");
+      const messageInput = document.getElementById("visitorMessage");
+
+      const name = normalizeText(nameInput?.value, 50);
+      const text = normalizeText(messageInput?.value, 300);
+
+      if (!name || !text) {
+        showToast("اكتبي الاسم والرسالة أولاً 🌷");
+        return;
+      }
+
+      const messages = safeJsonGet("furatMessages", []);
+      messages.unshift({
+        name,
+        text,
+        date: new Date().toLocaleDateString("ar-JO")
+      });
+
+      if (messages.length > 50) messages.length = 50;
+
+      if (safeStorageSet("furatMessages", JSON.stringify(messages))) {
+        const published = await savePublicEntry("message", name, text);
+        if (!published) return;
+        nameInput.value = "";
+        messageInput.value = "";
+        renderVisitorMessages();
+        showToast("تم حفظ رسالتك الجميلة 🤍");
+      }
+    }
+
+    function renderVisitorMessages() {
+      const container = document.getElementById("visitorMessages");
+      if (!container) return;
+
+      container.replaceChildren();
+      const messages = safeJsonGet("furatMessages", []);
+
+      if (!messages.length) {
+        container.appendChild(
+          makeTextElement("p", "لسه ما في رسائل. كوني أول شخص يترك كلمة طيبة 🌷", "text-center text-gray-500 py-6")
+        );
+        return;
+      }
+
+      messages.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "glass-card p-4 mb-3";
+
+        const row = document.createElement("div");
+        row.className = "flex items-center justify-between gap-3 mb-2";
+
+        row.appendChild(
+          makeTextElement("strong", normalizeText(item.name, 50), "text-purple-700 dark:text-purple-300")
+        );
+        row.appendChild(
+          makeTextElement("span", normalizeText(item.date, 30), "text-xs text-gray-400")
+        );
+
+        card.appendChild(row);
+        card.appendChild(
+          makeTextElement("p", normalizeText(item.text, 300), "text-gray-700 dark:text-gray-200 leading-7")
+        );
+        container.appendChild(card);
+      });
+    }
+
+    async function submitVisitorWish() {
+      const wishInput = document.getElementById("visitorWish");
+      const text = normalizeText(wishInput?.value, 250);
+
+      if (!text) {
+        showToast("اكتبي أمنيتك أولاً 🌷");
+        return;
+      }
+
+      const wishes = safeJsonGet("furatWishes", []);
+      wishes.unshift({
+        text,
+        date: new Date().toLocaleDateString("ar-JO")
+      });
+
+      if (wishes.length > 50) wishes.length = 50;
+
+      if (safeStorageSet("furatWishes", JSON.stringify(wishes))) {
+        const published = await savePublicEntry("wish", "أمنية من القلب 🤍", text);
+        if (!published) return;
+        const words = safeJsonGet("fofouWords", []);
+        words.unshift({ name: "أمنية من القلب 🤍", text, date: new Date().toLocaleDateString("ar-JO") });
+        if (words.length > 50) words.length = 50;
+        safeStorageSet("fofouWords", JSON.stringify(words));
+        wishInput.value = "";
+        renderVisitorWishes();
+        showToast("تمت إضافة أمنيتك 🤍");
+      }
+    }
+
+    function renderVisitorWishes() {
+      const container = document.getElementById("visitorWishes");
+      if (!container) return;
+
+      container.replaceChildren();
+      const wishes = safeJsonGet("furatWishes", []);
+
+      if (!wishes.length) {
+        container.appendChild(
+          makeTextElement("p", "اكتبي أمنية من قلبك، وستظهر كلمات الأمنيات الجميلة معًا هنا 🤍", "text-center text-gray-500 py-6")
+        );
+        return;
+      }
+
+      wishes.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "glass-card p-4 mb-3 flex gap-3 items-start";
+
+        const flower = makeTextElement("span", "🌷", "text-xl");
+        const content = document.createElement("div");
+        content.appendChild(
+          makeTextElement("p", normalizeText(item.text, 250), "text-gray-700 dark:text-gray-200 leading-7")
+        );
+        content.appendChild(
+          makeTextElement("span", normalizeText(item.date, 30), "text-xs text-gray-400")
+        );
+
+        card.appendChild(flower);
+        card.appendChild(content);
+        container.appendChild(card);
+      });
+    }
+
+    
+    async function loadPublicEntries() {
+      if (!supabaseClient) return;
+      const { data, error } = await supabaseClient
+        .from('public_entries')
+        .select('id, entry_type, name, text, created_at')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error || !Array.isArray(data)) return;
+
+      const wishes = data.filter(x => x.entry_type === 'wish');
+      const messages = data.filter(x => x.entry_type === 'message');
+      const words = [
+        ...wishes.map(x => ({ name: x.name || 'أمنية من القلب 🤍', text: x.text, date: new Date(x.created_at).toLocaleDateString('ar-JO') })),
+        ...data.filter(x => x.entry_type === 'word').map(x => ({ name: x.name || 'من قلبٍ محب 🤍', text: x.text, date: new Date(x.created_at).toLocaleDateString('ar-JO') }))
+      ];
+
+      if (wishes.length) {
+        safeStorageSet('furatWishes', JSON.stringify(wishes.map(x => ({ text: x.text, date: new Date(x.created_at).toLocaleDateString('ar-JO') }))));
+      }
+      if (messages.length) {
+        safeStorageSet('furatMessages', JSON.stringify(messages.map(x => ({ name: x.name || 'زائر', text: x.text, date: new Date(x.created_at).toLocaleDateString('ar-JO') }))));
+      }
+      if (words.length) {
+        safeStorageSet('fofouWords', JSON.stringify(words.slice(0, 50)));
+      }
+      renderVisitorMessages();
+      renderVisitorWishes();
+      renderFofouWords();
+    }
+
+    async function savePublicEntry(entry_type, name, text) {
+      if (!supabaseClient) return true;
+      const { error } = await supabaseClient.from('public_entries').insert({
+        entry_type,
+        name: name || null,
+        text,
+        status: 'published'
+      });
+      if (error) {
+        showToast('تعذر نشر المشاركة الآن، حاولي مرة أخرى 🤍');
+        return false;
+      }
+      return true;
+    }
+
+    function getSiteUrl() {
+      return window.location.href;
+    }
+
+    async function shareSite() {
+      const url = getSiteUrl();
+      const shareData = { title: 'فرات… حكاية أمل 🌷', text: 'شاركي صفحة الدعاء لفرات 🤍', url };
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else if (navigator.clipboard) {
+          await navigator.clipboard.writeText(url);
+          showToast('تم نسخ رابط الموقع 🤍');
+        } else {
+          showToast('انسخي رابط الموقع من شريط المتصفح 🤍');
+        }
+      } catch (e) {
+        if (e && e.name !== 'AbortError') showToast('يمكنك نسخ الرابط ومشاركته 🤍');
+      }
+    }
+
+    function shareViaWhatsApp() {
+      const url = encodeURIComponent(getSiteUrl());
+      const text = encodeURIComponent('فرات… حكاية أمل 🌷\nشاركي معنا بالدعاء لها 🤍\n');
+      window.open(`https://wa.me/?text=${text}${url}`, '_blank', 'noopener,noreferrer');
+    }
+
+    async function copySiteLink() {
+      try {
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(getSiteUrl());
+          showToast('تم نسخ رابط الموقع 🤍');
+        } else {
+          showToast('انسخي الرابط من شريط المتصفح وشاركيه 🤍');
+        }
+      } catch (e) {
+        showToast('انسخي الرابط من شريط المتصفح وشاركيه 🤍');
+      }
+    }
+
+    function clearLocalData() {
+      const confirmed = confirm("هل تريدين مسح الرسائل والأمنيات والعداد المحفوظ على هذا المتصفح؟");
+      if (!confirmed) return;
+
+      try {
+        localStorage.removeItem("furatMessages");
+        localStorage.removeItem("furatWishes");
+        localStorage.removeItem("fofouWords");
+        localStorage.removeItem("foratExtraDuas");
+        localStorage.setItem("forat_prayer_count", "0");
+        globalPrayerCount = 0;
+
+        const counter = document.getElementById("globalCounter");
+        if (counter) counter.textContent = "0";
+
+        renderFofouWords();
+        renderExtraDuas();
+
+        renderVisitorMessages();
+        renderVisitorWishes();
+        showToast("تم مسح البيانات المحلية 🌷");
+      } catch (error) {
+        showToast("تعذر مسح البيانات");
+      }
+    }
+
+function showToast(msg) {
+            const div = document.createElement('div');
+            div.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-6 py-3 rounded-2xl shadow-2xl text-xs md:text-sm font-bold z-50 animate-bounce';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3500);
+        }
+    </script>
+</body>
+</html>
