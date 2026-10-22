@@ -305,6 +305,10 @@ function escapeHtml(value){
 <div class="glass rounded-3xl p-7 md:p-10 mt-6 text-center">
 <h2 class="text-2xl md:text-3xl font-black">دعاء اليوم 🤍</h2>
 <p id="dailyDua" class="font-amiri text-xl md:text-2xl leading-10 text-slate-600 mt-4"></p>
+<button type="button" onclick="shareSite()" class="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#b76e79] px-6 py-3 text-white font-black shadow-sm hover:opacity-90 transition">
+  <span aria-hidden="true">🔗</span><span>شاركي موقع فرات 🤍</span>
+</button>
+<p class="mt-2 text-sm text-slate-500">اضغطي لمشاركة رابط الموقع مباشرة أو لنسخه وإرساله لمن تحبين 🤍</p>
 </div>
 </section>
 
@@ -736,7 +740,22 @@ function renderDailyDua(){
   el.textContent=dailyDuas[day%dailyDuas.length];
 }
 
-async function shareSite(){const url=SITE_URL,data={title:"ذكرى لا تُنسى 🤍",text:"صفحة للدعاء والرحمة والذكرى 🤍",url};try{if(navigator.share)await navigator.share(data);else if(navigator.clipboard){await navigator.clipboard.writeText(url);toast("تم نسخ رابط الصفحة 🤍")}else toast("انسخي الرابط من شريط المتصفح 🤍")}catch(e){}}
+async function shareSite(){
+  const url = SITE_URL;
+  const data = {title:"ذكرى لا تُنسى 🤍", text:"صفحة للدعاء والرحمة والذكرى لفرات 🤍", url};
+  if (navigator.share) {
+    try { await navigator.share(data); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url);
+      toast("تم نسخ رابط موقع فرات 🤍 ابعتيه للي بتحبي");
+      return;
+    }
+  } catch (e) {}
+  window.prompt("انسخي رابط موقع فرات وابعتيه للي بتحبي 🤍", url);
+}
 function openPrivacy(){document.getElementById("privacy").classList.remove("hidden");document.getElementById("privacy").classList.add("flex")}function closePrivacy(){document.getElementById("privacy").classList.add("hidden");document.getElementById("privacy").classList.remove("flex")}
 window.addEventListener("load",async()=>{
   initTheme();
