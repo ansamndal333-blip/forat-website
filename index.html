@@ -710,19 +710,27 @@ function makeDhikrItemsClickable(){
     const key=dhikrKey(text + "__item_" + index);
     let saved=0;
     try { saved=Number(localStorage.getItem("memorial_"+key)||0); } catch(e) {}
-    // عدّاد الأذكار محفوظ محليًا على هذا الجهاز فقط، ولا يُحمّل من Supabase.
-    const current=saved;
+    const current=Math.max(saved, sharedDhikrCounts[key]!==undefined?Number(sharedDhikrCounts[key]):0);
     const span=document.createElement("span");span.className="dhikr-item-text";span.textContent=text;
     const count=document.createElement("span");count.className="dhikr-item-count";count.textContent=current;
     item.textContent="";item.append(span,count);item.dataset.ready="1";item.dataset.dhikrKey=key;
     item.setAttribute("role","button");item.setAttribute("tabindex","0");
     item.setAttribute("aria-label","اضغطي لزيادة عدد هذا الذكر");
-    const increment=()=>{
-      // لكل جهاز عدّاداته الخاصة، وتبقى محفوظة بعد إغلاق الموقع.
-      const next=Number(count.textContent||0)+1;
-      count.textContent=String(next);
-      try { localStorage.setItem("memorial_"+key,String(next)); } catch(e) {}
-      toast("جزاكِ الله خيرًا 🤍");
+    const increment=async()=>{
+      // الخادم هو مصدر الرقم المشترك؛ لا نزيد الرقم محليًا قبل استجابة الدالة.
+      const previous=Number(count.textContent||0);
+      count.textContent="…";
+      const ok=await incrementSharedDhikr(key,text,count);
+      if(ok){
+        try { localStorage.setItem("memorial_"+key,String(Number(count.textContent||0))); } catch(e) {}
+        toast("جزاكِ الله خيرًا 🤍");
+      }else{
+        // بديل محلي إذا تعذّر الاتصال، مع توضيح أن هذا الرقم لن يتشارك بين الأجهزة.
+        const next=previous+1;
+        count.textContent=String(next);
+        try { localStorage.setItem("memorial_"+key,String(next)); } catch(e) {}
+        toast("تم العدّ على هذا الجهاز فقط مؤقتًا 🤍");
+      }
     };
     item.addEventListener("click",increment);
     item.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();increment();}});
@@ -819,6 +827,13 @@ function setupRealtimeSync(){
         await loadMessageCount();
       }
     })
+    .on("postgres_changes",{event:"*",schema:"public",table:"dhikr_counts"},(payload)=>{
+      const item=payload.new;
+      if(!item || !item.key) return;
+      sharedDhikrCounts[item.key]=Number(item.count||0);
+      const el=document.querySelector('.dhikr-item[data-dhikr-key="'+item.key+'"] .dhikr-item-count');
+      if(el) el.textContent=String(item.count||0);
+    })
     .subscribe();
 }
 
@@ -829,6 +844,8 @@ window.addEventListener("load",async()=>{
   syncDhikrCounters();
   setMessageCount(0);
   await loadMessageCount();
+  makeDhikrItemsClickable();
+  await loadSharedDhikrCounts();
   makeDhikrItemsClickable();
   const h=location.hash.replace("#","");
   go(["home","story","duas","quran","adhkar","message","thanks"].includes(h)?h:"home");
