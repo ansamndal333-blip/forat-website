@@ -702,10 +702,12 @@ async function incrementSharedDhikr(key, text, countEl) {
 }
 
 function makeDhikrItemsClickable(){
-  document.querySelectorAll(".dhikr-item").forEach((item)=>{
+  // كل ظهور للذكر له عدّاد مستقل، حتى لو تكرر النص نفسه في قسم آخر.
+  document.querySelectorAll(".dhikr-item").forEach((item,index)=>{
     if(item.dataset.ready==="1")return;
     const text=item.textContent.trim();
-    const key=dhikrKey(text);
+    // إضافة رقم ترتيب الذكر يمنع تداخل عدّاد الأذكار المتشابهة بين الأقسام.
+    const key=dhikrKey(text + "__item_" + index);
     let saved=0;
     try { saved=Number(localStorage.getItem("memorial_"+key)||0); } catch(e) {}
     const current=Math.max(saved, sharedDhikrCounts[key]!==undefined?Number(sharedDhikrCounts[key]):0);
